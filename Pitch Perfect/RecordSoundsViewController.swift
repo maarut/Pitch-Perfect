@@ -21,37 +21,36 @@ class RecordSoundsViewController: UIViewController, AVAudioRecorderDelegate {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view, typically from a nib.
     }
     
     override func viewWillAppear(animated: Bool)
     {
-        self.stopButton.hidden = true
-        self.recordButton.enabled = true
-        self.recordingLabel.text = "Tap to record"
+        super.viewWillAppear(animated)
+        stopButton.hidden = true
+        recordButton.enabled = true
+        recordingLabel.text = "Tap to record"
     }
 
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
     }
 
     @IBAction func recordAudio(sender: UIButton)
     {
-        self.recordingLabel.text = "Recording"
-        self.stopButton.hidden = false
-        self.recordButton.enabled = false
+        recordingLabel.text = "Recording"
+        stopButton.hidden = false
+        recordButton.enabled = false
         
         let directory = NSSearchPathForDirectoriesInDomains(.DocumentDirectory, .UserDomainMask, true)[0] as String
         let filePath = NSURL.fileURLWithPathComponents([directory, fileName])!
         
         do {
             try AVAudioSession.sharedInstance().setCategory(AVAudioSessionCategoryPlayAndRecord)
-            try! self.audioRecorder = AVAudioRecorder(URL: filePath, settings: [:])
-            self.audioRecorder.delegate = self
-            self.audioRecorder.meteringEnabled = true
-            self.audioRecorder.prepareToRecord()
-            self.audioRecorder.record()
+            try! audioRecorder = AVAudioRecorder(URL: filePath, settings: [:])
+            audioRecorder.delegate = self
+            audioRecorder.meteringEnabled = true
+            audioRecorder.prepareToRecord()
+            audioRecorder.record()
         }
         catch {
             NSLog("Unable to set session for recording")
@@ -61,21 +60,24 @@ class RecordSoundsViewController: UIViewController, AVAudioRecorderDelegate {
 
     @IBAction func stopRecording(sender: UIButton)
     {
-        self.recordingLabel.text = nil
-        self.audioRecorder.stop()
+        recordingLabel.text = nil
+        audioRecorder.stop()
         try! AVAudioSession.sharedInstance().setActive(false)
     }
     
     func audioRecorderDidFinishRecording(recorder: AVAudioRecorder, successfully flag: Bool)
     {
         if flag {
-            self.recordedAudio = RecordedAudio(filePathURL: recorder.url, title: recorder.url.lastPathComponent!)
-            self.performSegueWithIdentifier("stopRecording", sender: self.recordedAudio)
+            recordedAudio = RecordedAudio(filePathURL: recorder.url, title: recorder.url.lastPathComponent!)
+            performSegueWithIdentifier("stopRecording", sender: recordedAudio)
         }
         else {
             NSLog("Unable to record audio")
-            self.stopButton.hidden = true
-            self.recordButton.enabled = true
+            stopButton.hidden = true
+            recordButton.enabled = true
+            let alertController = UIAlertController(title: "Failed to record audio", message: "The audio failed to record. Please ensure you have enough space to perform the recording", preferredStyle: .Alert)
+            alertController.addAction(UIAlertAction(title: "Dismiss", style: .Default, handler: nil))
+            presentViewController(alertController, animated: true, completion: nil)
         }
     }
     
