@@ -75,6 +75,7 @@ class RecordSoundsViewController: UIViewController, AVAudioRecorderDelegate {
             NSLog("Unable to record audio")
             stopButton.hidden = true
             recordButton.enabled = true
+            recordingLabel.text = "Tap to record"
             let alertController = UIAlertController(title: "Failed to record audio", message: "The audio failed to record. Please ensure you have enough space to perform the recording", preferredStyle: .Alert)
             alertController.addAction(UIAlertAction(title: "Dismiss", style: .Default, handler: nil))
             presentViewController(alertController, animated: true, completion: nil)
